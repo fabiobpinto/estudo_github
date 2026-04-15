@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulário com Validação</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    input.invalid, textarea.invalid, select.invalid {
+      border-color: #e74c3c;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .error-message.visible {
+      display: block;
+    }
+
+    button[type="submit"] {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #2980b9;
+    }
+
+    #success-message {
+      color: #27ae60;
+      font-weight: bold;
+      margin-top: 16px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Formulário de Cadastro</h1>
+
+  <form id="registration-form" novalidate>
+    <div class="form-group">
+      <label for="name">Nome <span aria-hidden="true">*</span></label>
+      <input type="text" id="name" name="name" placeholder="Digite seu nome completo" aria-required="true">
+      <span class="error-message" id="name-error">Por favor, informe seu nome (mínimo 2 caracteres).</span>
+    </div>
+
+    <div class="form-group">
+      <label for="email">E-mail <span aria-hidden="true">*</span></label>
+      <input type="email" id="email" name="email" placeholder="exemplo@dominio.com" aria-required="true">
+      <span class="error-message" id="email-error">Por favor, informe um e-mail válido.</span>
+    </div>
+
+    <div class="form-group">
+      <label for="age">Idade <span aria-hidden="true">*</span></label>
+      <input type="number" id="age" name="age" placeholder="Ex: 25" min="1" max="120" aria-required="true">
+      <span class="error-message" id="age-error">Por favor, informe uma idade válida (entre 1 e 120).</span>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Telefone</label>
+      <input type="tel" id="phone" name="phone" placeholder="(99) 99999-9999 ou (99) 9999-9999">
+      <span class="error-message" id="phone-error">Por favor, informe um telefone válido no formato (99) 99999-9999 (celular) ou (99) 9999-9999 (fixo).</span>
+    </div>
+
+    <div class="form-group">
+      <label for="message">Mensagem <span aria-hidden="true">*</span></label>
+      <textarea id="message" name="message" rows="4" placeholder="Digite sua mensagem" aria-required="true"></textarea>
+      <span class="error-message" id="message-error">Por favor, informe uma mensagem (mínimo 10 caracteres).</span>
+    </div>
+
+    <button type="submit">Enviar</button>
+    <p id="success-message">Formulário enviado com sucesso!</p>
+  </form>
+
+  <script>
+    var form = document.getElementById('registration-form');
+
+    function showError(fieldId, show) {
+      var field = document.getElementById(fieldId);
+      var error = document.getElementById(fieldId + '-error');
+      if (show) {
+        field.classList.add('invalid');
+        error.classList.add('visible');
+      } else {
+        field.classList.remove('invalid');
+        error.classList.remove('visible');
+      }
+    }
+
+    function validateName() {
+      var value = document.getElementById('name').value.trim();
+      var valid = value.length >= 2;
+      showError('name', !valid);
+      return valid;
+    }
+
+    function validateEmail() {
+      var value = document.getElementById('email').value.trim();
+      var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      var valid = emailPattern.test(value);
+      showError('email', !valid);
+      return valid;
+    }
+
+    function validateAge() {
+      var value = parseInt(document.getElementById('age').value, 10);
+      var valid = !isNaN(value) && value >= 1 && value <= 120;
+      showError('age', !valid);
+      return valid;
+    }
+
+    function validatePhone() {
+      var value = document.getElementById('phone').value.trim();
+      if (value === '') {
+        showError('phone', false);
+        return true;
+      }
+      var phonePattern = /^\(\d{2}\) \d{4,5}-\d{4}$/;
+      var valid = phonePattern.test(value);
+      showError('phone', !valid);
+      return valid;
+    }
+
+    function validateMessage() {
+      var value = document.getElementById('message').value.trim();
+      var valid = value.length >= 10;
+      showError('message', !valid);
+      return valid;
+    }
+
+    document.getElementById('name').addEventListener('blur', validateName);
+    document.getElementById('email').addEventListener('blur', validateEmail);
+    document.getElementById('age').addEventListener('blur', validateAge);
+    document.getElementById('phone').addEventListener('blur', validatePhone);
+    document.getElementById('message').addEventListener('blur', validateMessage);
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      var nameValid = validateName();
+      var emailValid = validateEmail();
+      var ageValid = validateAge();
+      var phoneValid = validatePhone();
+      var messageValid = validateMessage();
+      var isValid = nameValid && emailValid && ageValid && phoneValid && messageValid;
+
+      if (isValid) {
+        document.getElementById('success-message').style.display = 'block';
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
